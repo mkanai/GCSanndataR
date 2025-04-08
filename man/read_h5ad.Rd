@@ -4,7 +4,12 @@
 \alias{read_h5ad}
 \title{Read H5AD}
 \usage{
-read_h5ad(path, to = "GCSAnnData", mode = "r", ...)
+read_h5ad(
+  path,
+  to = c("InMemoryAnnData", "HDF5AnnData", "SingleCellExperiment", "Seurat"),
+  mode = c("r", "r+", "a", "w", "w-", "x"),
+  ...
+)
 }
 \arguments{
 \item{path}{Path to the H5AD file to read. If the path starts with "gs://",

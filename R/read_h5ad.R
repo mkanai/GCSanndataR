@@ -53,18 +53,18 @@
 #' }
 read_h5ad <- function(
     path,
-    to = "GCSAnnData",
-    mode = "r",
+    to = c("InMemoryAnnData", "HDF5AnnData", "SingleCellExperiment", "Seurat"),
+    mode = c("r", "r+", "a", "w", "w-", "x"),
     ...) {
   # Check if path is a GCS path
   is_gcs_path <- grepl("^gs://", path)
 
   if (is_gcs_path) {
     # Warn if mode or to arguments are supplied for GCS paths
-    if (!missing(to) && to != "GCSAnnData") {
+    if (!missing(to)) {
       warning("The 'to' argument is not supported for GCS paths. Using 'GCSAnnData' backend.")
     }
-    if (!missing(mode) && mode != "r") {
+    if (!missing(mode)) {
       warning("The 'mode' argument is not supported for GCS paths. Using read-only mode.")
     }
 
