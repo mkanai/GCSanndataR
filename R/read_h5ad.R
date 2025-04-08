@@ -1,0 +1,77 @@
+#' Read H5AD
+#'
+#' Read data from a H5AD file, either from a local file or from Google Cloud Storage
+#'
+#' @param path Path to the H5AD file to read. If the path starts with "gs://",
+#'   it will be treated as a Google Cloud Storage path and will automatically use
+#'   the GCSAnnData backend.
+#' @param to The type of object to return. Must be one of: "InMemoryAnnData",
+#'   "HDF5AnnData", "GCSAnnData", "SingleCellExperiment", "Seurat". Default is "GCSAnnData".
+#'   Note that for paths starting with "gs://", this parameter is ignored and "GCSAnnData" is used.
+#'   A warning will be issued if a different value is provided for GCS paths.
+#' @param mode The mode to open the HDF5 file. Default is "r" (read-only).
+#'   Note that for paths starting with "gs://", this parameter is ignored and read-only mode is used.
+#'   A warning will be issued if a different value is provided for GCS paths.
+#'
+#'   * `a` creates a new file or opens an existing one for read/write.
+#'   * `r` opens an existing file for reading.
+#'   * `r+` opens an existing file for read/write.
+#'   * `w` creates a file, truncating any existing ones.
+#'   * `w-`/`x` are synonyms, creating a file and failing if it already exists.
+#'
+#' @param ... Extra arguments provided to `adata$to_SingleCellExperiment()` or
+#'   `adata$to_Seurat()`. See [AnnData()] for more information on the arguments of
+#'   these functions. Note: update this documentation when
+#'   [`r-lib/roxygen2#955`](https://github.com/r-lib/roxygen2/issues/955) is resolved.
+#'
+#' @return The object specified by `to`
+#' @export
+#'
+#' @examples
+#' h5ad_file <- system.file("extdata", "example.h5ad", package = "anndataR")
+#'
+#' # Read the H5AD as a SingleCellExperiment object
+#' if (requireNamespace("SingleCellExperiment", quietly = TRUE)) {
+#'   sce <- read_h5ad(h5ad_file, to = "SingleCellExperiment")
+#' }
+#'
+#' # Read the H5AD as a Seurat object
+#' if (requireNamespace("SeuratObject", quietly = TRUE)) {
+#'   seurat <- read_h5ad(h5ad_file, to = "Seurat")
+#' }
+#'
+#' # Read an H5AD file from Google Cloud Storage
+#' \dontrun{
+#' # This will automatically use GCSAnnData
+#' gcs_adata <- read_h5ad("gs://my-bucket/my-file.h5ad")
+#'
+#' # Access specific rows and columns
+#' gcs_adata$X[1:10, 1:5]
+#'
+#' # Access using names
+#' gcs_adata$X[c("cell1", "cell2"), c("gene1", "gene2")]
+#' }
+read_h5ad <- function(
+    path,
+    to = "GCSAnnData",
+    mode = "r",
+    ...) {
+  # Check if path is a GCS path
+  is_gcs_path <- grepl("^gs://", path)
+
+  if (is_gcs_path) {
+    # Warn if mode or to arguments are supplied for GCS paths
+    if (!missing(to) && to != "GCSAnnData") {
+      warning("The 'to' argument is not supported for GCS paths. Using 'GCSAnnData' backend.")
+    }
+    if (!missing(mode) && mode != "r") {
+      warning("The 'mode' argument is not supported for GCS paths. Using read-only mode.")
+    }
+
+    # For GCS paths, create a GCSAnnData object
+    GCSAnnData$new(path)
+  } else {
+    # For non-GCS paths, delegate to anndataR
+    anndataR::read_h5ad(path, to = to, mode = mode, ...)
+  }
+}

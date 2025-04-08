@@ -1,0 +1,19 @@
+Package: GCSanndataR
+Type: Package
+Title: Google Cloud Storage-Backed AnnData for R
+Version: 0.1.0
+Author: Masahiro Kanai
+Maintainer: Masahiro Kanai <mkanai@broadinstitute.org>
+Description: Extends the 'anndataR' package to provide Google Cloud Storage-backed 
+    AnnData functionality for R. This package allows users to work with AnnData 
+    objects stored in Google Cloud Storage without downloading the entire file, 
+    enabling efficient access to large single-cell datasets directly from the cloud.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+  anndataR,
+  cli,
+  reticulate (>= 1.36.1),
+  R6
+RoxygenNote: 7.2.1
