@@ -188,6 +188,26 @@ GCSAnnData <- R6::R6Class(
       } else {
         private$.read_only_error("sparse_format")
       }
+    },
+
+    #' @field obs_to_idx The observation name to index mapping
+    obs_to_idx = function(value) {
+      private$.check_valid()
+      if (missing(value)) {
+        private$.get_py_attr("obs_to_idx")
+      } else {
+        private$.read_only_error("obs_to_idx")
+      }
+    },
+
+    #' @field var_to_idx The variable name to index mapping
+    var_to_idx = function(value) {
+      private$.check_valid()
+      if (missing(value)) {
+        private$.get_py_attr("var_to_idx")
+      } else {
+        private$.read_only_error("var_to_idx")
+      }
     }
   ),
   public = list(
@@ -400,10 +420,16 @@ GCSAnnData <- R6::R6Class(
         if (sparse_format == "csr") {
           # For CSR format, first get rows then filter columns
           result <- parent$get_rows(i)
+          if (is.character(j)) {
+            j <- parent$var_to_idx(j)
+          }
           return(result[, j, drop = drop])
         } else {
           # For CSC format or other formats, first get columns then filter rows
           result <- parent$get_columns(j)
+          if (is.character(i)) {
+            i <- parent$obs_to_idx(i)
+          }
           return(result[i, , drop = drop])
         }
       },
