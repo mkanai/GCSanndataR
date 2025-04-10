@@ -16,4 +16,6 @@ Imports:
   cli,
   reticulate (>= 1.36.1),
   R6
+Remotes:
+  scverse/anndataR
 RoxygenNote: 7.3.2
