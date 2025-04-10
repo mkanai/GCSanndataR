@@ -17,6 +17,6 @@
 #'
 #' @export
 install_gcs_anndata <- function(...) {
-  reticulate::py_install("gcs_anndata", ...)
+  reticulate::py_install("git+https://github.com/mkanai/gcs_anndata", ...)
   invisible(NULL)
 }
