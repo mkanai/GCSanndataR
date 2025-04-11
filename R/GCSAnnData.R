@@ -47,20 +47,6 @@ GCSAnnData <- R6::R6Class(
         return(which(idx) - 1L) # Convert logical to integer indices
       }
       return(idx) # Return as is for other types (e.g., character)
-    },
-
-    # Helper function to ensure result is a matrix
-    .ensure_matrix = function(result, is_column = TRUE) {
-      if (!is.matrix(result)) {
-        if (is_column) {
-          # Convert to a matrix with one column
-          result <- matrix(result, ncol = 1, dimnames = list(names(result), NULL))
-        } else {
-          # Convert to a matrix with one row
-          result <- matrix(result, nrow = 1, dimnames = list(NULL, names(result)))
-        }
-      }
-      return(result)
     }
   ),
   active = list(
@@ -224,8 +210,7 @@ GCSAnnData <- R6::R6Class(
       # Get all columns for specified rows
       tryCatch(
         {
-          result <- private$.py_object$get_rows(i)
-          return(private$.ensure_matrix(result, is_column = FALSE))
+          return(private$.py_object$get_rows(i))
         },
         error = function(e) {
           cli_abort(
@@ -251,8 +236,7 @@ GCSAnnData <- R6::R6Class(
       # Get all rows for specified columns
       tryCatch(
         {
-          result <- private$.py_object$get_columns(j)
-          return(private$.ensure_matrix(result, is_column = TRUE))
+          return(private$.py_object$get_columns(j))
         },
         error = function(e) {
           cli_abort(
@@ -345,43 +329,14 @@ GCSAnnData <- R6::R6Class(
     print = function(...) {
       private$.check_valid()
       cat(
-        "GCSAnnData object with n_obs \u00D7 n_vars = ",
+        "GCSAnnData object with n_obs x n_vars = ",
         self$n_obs(),
-        " \u00D7 ",
+        " x ",
         self$n_vars(),
         "\n",
         sep = ""
       )
       cat("  GCS path: ", private$.gcs_path, "\n", sep = "")
-
-      for (attribute in c(
-        "obs",
-        "var",
-        "uns",
-        "obsm",
-        "varm",
-        "layers",
-        "obsp",
-        "varp"
-      )) {
-        key_fun <- self[[paste0(attribute, "_keys")]]
-        keys <-
-          if (!is.null(key_fun)) {
-            key_fun()
-          } else {
-            NULL
-          }
-        if (length(keys) > 0) {
-          cat(
-            "    ",
-            attribute,
-            ": ",
-            paste(paste0("'", keys, "'"), collapse = ", "),
-            "\n",
-            sep = ""
-          )
-        }
-      }
     }
   )
 )
