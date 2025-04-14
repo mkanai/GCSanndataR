@@ -347,6 +347,27 @@ GCSAnnData <- R6::R6Class(
   # Get the parent GCSAnnData object
   parent <- attr(x, "parent")
 
+  if (is.character(i)) {
+    if (!all(i %in% parent$obs_names)) {
+      cli_abort(
+        c(
+          "Invalid row indices provided for GCSAnnData$X",
+          "i" = "Use valid observation names or indices"
+        )
+      )
+    }
+  }
+  if (is.character(j)) {
+    if (!all(j %in% parent$var_names)) {
+      cli_abort(
+        c(
+          "Invalid column indices provided for GCSAnnData$X",
+          "i" = "Use valid variable names or indices"
+        )
+      )
+    }
+  }
+
   # Handle row-only or column-only access
   if (missing(i)) {
     # Column-only access: get all rows for specified columns
